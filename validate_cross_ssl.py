@@ -45,10 +45,14 @@ def main():
         print_certificate_info(cert)
 
     # Check for cross-signing
-    cross_signed = any(cert.issuer == chain_certs[0].issuer and cert != chain_certs[0] for cert in chain_certs)
-    if cross_signed:
-        print("\nCross-signing detected in the certificate chain.")
-    else:
+    cross_signed = False
+    for i, cert in enumerate(chain_certs):
+        for j, other_cert in enumerate(chain_certs):
+            if i != j and cert.subject == other_cert.subject and cert.issuer != other_cert.issuer:
+                cross_signed = True
+                print(f"\nCross-signing detected between certificate {i+1} and {j+1} in the chain.")
+
+    if not cross_signed:
         print("\nNo cross-signing detected in the certificate chain.")
 
 if __name__ == "__main__":
